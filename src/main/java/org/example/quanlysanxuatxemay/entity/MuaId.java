@@ -15,10 +15,8 @@ public class MuaId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Column(name = "maXeMay", length = 20)
     private String maXeMay;
 
-    @Column(name = "maKhachHang", length = 20)
     private String maKhachHang;
 }
 

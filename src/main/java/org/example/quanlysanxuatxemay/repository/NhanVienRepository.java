@@ -10,7 +10,6 @@ import java.util.List;
 
 @Repository
 public interface NhanVienRepository extends JpaRepository<NhanVien, String> {
-    List<NhanVien> findByTenNhanVienContaining(String tenNhanVien);
     List<NhanVien> findByBoPhan(BoPhan boPhan);
     List<NhanVien> findByVitrilamviec(String vitrilamviec);
 
