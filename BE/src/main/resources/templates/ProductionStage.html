@@ -1,0 +1,326 @@
+<!-- ProductionStage.html - Quản lý quy trình sản xuất -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý quy trình sản xuất</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .modal-lg { max-width: 900px; }
+        pre.json-view { background: #f8f9fa; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <h2 class="mb-4">Quản lý quy trình sản xuất</h2>
+    <!-- Search/filter -->
+    <form class="row g-3 mb-3" id="searchForm">
+        <div class="col-md-3">
+            <label for="fromDate" class="form-label">Từ ngày</label>
+            <input type="date" class="form-control" id="fromDate" name="fromDate">
+        </div>
+        <div class="col-md-3">
+            <label for="toDate" class="form-label">Đến ngày</label>
+            <input type="date" class="form-control" id="toDate" name="toDate">
+        </div>
+        <div class="col-md-3 align-self-end">
+            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        </div>
+        <div class="col-md-3 align-self-end text-end">
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#stageModal" onclick="openAddModal()">Tạo quy trình SX</button>
+        </div>
+    </form>
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Xe máy</th>
+                    <th>Ngày bắt đầu</th>
+                    <th>Ngày kết thúc</th>
+                    <th>Trạng thái</th>
+                    <th>Nhân viên tham gia</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="stageTableBody">
+            </tbody>
+        </table>
+    </div>
+    <!-- Pagination -->
+    <nav>
+        <ul class="pagination justify-content-center" id="pagination">
+        </ul>
+    </nav>
+</div>
+
+<!-- Add Production Stage Modal -->
+<div class="modal fade" id="stageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="stageForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="stageModalLabel">Tạo quy trình sản xuất</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="motorbikeId" class="form-label">Xe máy</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="motorbikeId" required placeholder="Nhập hoặc chọn ID xe máy">
+                <button class="btn btn-outline-secondary" type="button" onclick="openMotorbikeModal()">Chọn</button>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="employeeIds" class="form-label">Danh sách ID nhân viên (cách nhau dấu phẩy)</label>
+            <input type="text" class="form-control" id="employeeIds" required placeholder="VD: 1,2,3">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Tạo mới</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Motorbike Select Modal -->
+<div class="modal fade" id="motorbikeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Chọn xe máy</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="row g-2 mb-2" id="motorbikeSearchForm">
+          <div class="col-md-8">
+            <input type="text" class="form-control" id="motorbikeKeyword" placeholder="Tìm kiếm tên xe máy">
+          </div>
+          <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+          </div>
+        </form>
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Tên xe</th>
+                <th>Hãng</th>
+                <th>Chọn</th>
+              </tr>
+            </thead>
+            <tbody id="motorbikeTableBody"></tbody>
+          </table>
+        </div>
+        <nav>
+          <ul class="pagination justify-content-center" id="motorbikePagination"></ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="statusForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Cập nhật trạng thái quy trình</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="statusStageId">
+          <div class="mb-3">
+            <label for="statusSelect" class="form-label">Trạng thái</label>
+            <select class="form-select" id="statusSelect" required>
+              <option value="NOT_STARTED">NOT_STARTED</option>
+              <option value="IN_PROGRESS">IN_PROGRESS</option>
+              <option value="COMPLETED">COMPLETED</option>
+              <option value="CANCELLED">CANCELLED</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Cập nhật</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const apiUrl = '/api/production-stages';
+let currentPage = 0, pageSize = 5, totalPages = 1;
+
+function fetchStages(page = 0) {
+    const fromDate = document.getElementById('fromDate').value;
+    const toDate = document.getElementById('toDate').value;
+    let url = `${apiUrl}?page=${page}&size=${pageSize}`;
+    if (fromDate) url += `&startDate=${fromDate}`;
+    if (toDate) url += `&endDate=${toDate}`;
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            renderTable(data.content);
+            renderPagination(data.number, data.totalPages);
+            currentPage = data.number;
+            totalPages = data.totalPages;
+        });
+}
+
+function renderTable(stages) {
+    const tbody = document.getElementById('stageTableBody');
+    tbody.innerHTML = '';
+    stages.forEach(stage => {
+        const motorbikeName = stage.motorbike ? stage.motorbike.name : stage.motorbikeId;
+        const employees = (stage.employees || stage.employeeList || []).map(e => e.name || e.id).join(', ');
+        tbody.innerHTML += `
+        <tr>
+            <td>${stage.id}</td>
+            <td>${motorbikeName || ''}</td>
+            <td>${stage.startDate || ''}</td>
+            <td>${stage.endDate || ''}</td>
+            <td><span class="badge bg-${statusColor(stage.status)}">${stage.status}</span></td>
+            <td>${employees}</td>
+            <td>
+                <button class="btn btn-sm btn-warning me-1" onclick='openStatusModal(${stage.id}, "${stage.status}")'>Trạng thái</button>
+            </td>
+        </tr>`;
+    });
+}
+
+function renderPagination(page, total) {
+    const pag = document.getElementById('pagination');
+    pag.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+        pag.innerHTML += `<li class="page-item${i===page?' active':''}"><a class="page-link" href="#" onclick="fetchStages(${i});return false;">${i+1}</a></li>`;
+    }
+}
+
+function statusColor(status) {
+    switch(status) {
+        case 'COMPLETED': return 'success';
+        case 'IN_PROGRESS': return 'primary';
+        case 'CANCELLED': return 'danger';
+        case 'NOT_STARTED': return 'secondary';
+        default: return 'secondary';
+    }
+}
+
+// Modal logic
+function openAddModal() {
+    document.getElementById('stageModalLabel').innerText = 'Tạo quy trình sản xuất';
+    document.getElementById('motorbikeId').value = '';
+    document.getElementById('employeeIds').value = '';
+}
+
+// Add submit
+ document.getElementById('stageForm').onsubmit = function(e) {
+    e.preventDefault();
+    const motorbikeId = document.getElementById('motorbikeId').value;
+    const employeeIds = document.getElementById('employeeIds').value.split(',').map(s => s.trim()).filter(Boolean);
+    if (!motorbikeId || employeeIds.length === 0) {
+        alert('Vui lòng nhập đủ thông tin!');
+        return;
+    }
+    fetch(`${apiUrl}?motorbikeId=${motorbikeId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(employeeIds)
+    }).then(r => {
+        if (r.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('stageModal')).hide();
+            fetchStages(0);
+        } else alert('Tạo quy trình sản xuất thất bại!');
+    });
+};
+
+// Status modal
+function openStatusModal(id, status) {
+    document.getElementById('statusStageId').value = id;
+    document.getElementById('statusSelect').value = status;
+    new bootstrap.Modal(document.getElementById('statusModal')).show();
+}
+document.getElementById('statusForm').onsubmit = function(e) {
+    e.preventDefault();
+    const id = document.getElementById('statusStageId').value;
+    const status = document.getElementById('statusSelect').value;
+    fetch(`${apiUrl}/${id}/status?status=${status}`, {
+        method: 'PUT'
+    }).then(r => {
+        if (r.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
+            fetchStages(currentPage);
+        } else alert('Cập nhật trạng thái thất bại!');
+    });
+};
+
+// Motorbike modal logic
+let motorbikePage = 0, motorbikeTotal = 1, motorbikeKeyword = '';
+function openMotorbikeModal() {
+    document.getElementById('motorbikeKeyword').value = '';
+    fetchMotorbikes(0, '');
+    new bootstrap.Modal(document.getElementById('motorbikeModal')).show();
+}
+function fetchMotorbikes(page = 0, keyword = '') {
+    let url = `${apiUrl}/motorbikes?page=${page}&size=5`;
+    if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            renderMotorbikeTable(data.content);
+            renderMotorbikePagination(data.number, data.totalPages, keyword);
+            motorbikePage = data.number;
+            motorbikeTotal = data.totalPages;
+            motorbikeKeyword = keyword;
+        });
+}
+function renderMotorbikeTable(motorbikes) {
+    const tbody = document.getElementById('motorbikeTableBody');
+    tbody.innerHTML = '';
+    motorbikes.forEach(mb => {
+        tbody.innerHTML += `
+        <tr>
+            <td>${mb.id}</td>
+            <td>${mb.name || ''}</td>
+            <td>${mb.brand || ''}</td>
+            <td><button class='btn btn-sm btn-success' onclick='selectMotorbike("${mb.id}")'>Chọn</button></td>
+        </tr>`;
+    });
+}
+function renderMotorbikePagination(page, total, keyword) {
+    const pag = document.getElementById('motorbikePagination');
+    pag.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+        pag.innerHTML += `<li class="page-item${i===page?' active':''}"><a class="page-link" href="#" onclick="fetchMotorbikes(${i}, '${keyword}');return false;">${i+1}</a></li>`;
+    }
+}
+function selectMotorbike(id) {
+    document.getElementById('motorbikeId').value = id;
+    bootstrap.Modal.getInstance(document.getElementById('motorbikeModal')).hide();
+}
+document.getElementById('motorbikeSearchForm').onsubmit = function(e) {
+    e.preventDefault();
+    const keyword = document.getElementById('motorbikeKeyword').value;
+    fetchMotorbikes(0, keyword);
+};
+
+// Search form
+ document.getElementById('searchForm').onsubmit = function(e) {
+    e.preventDefault();
+    fetchStages(0);
+};
+
+// Initial load
+fetchStages();
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!-- Sidebar.html - Sidebar dùng chung cho các trang quản lý -->
+<div class="sidebar d-flex flex-column">
+    <div class="sidebar-title">Quản lý SX</div>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link" href="Customer.html">Khách hàng</a>
+    <a class="nav-link" href="Employee.html">Nhân viên</a>
+    <a class="nav-link" href="Supplier.html">Nhà cung cấp</a>
+    <a class="nav-link" href="PartsInvoice.html">Hóa đơn linh kiện</a>
+    <a class="nav-link" href="ProductInvoice.html">Hóa đơn sản phẩm</a>
+    <a class="nav-link" href="ProductionStage.html">Quy trình sản xuất</a>
+</div>
+<style>
+.sidebar {
+    min-height: 100vh;
+    background: #1e293b;
+    color: #fff;
+    padding: 0;
+}
+.sidebar .nav-link {
+    color: #cbd5e1;
+    font-weight: 500;
+    padding: 16px 24px;
+    border-radius: 0;
+    transition: background 0.2s;
+    display: block;
+}
+.sidebar .nav-link.active, .sidebar .nav-link:hover {
+    background: #2563eb;
+    color: #fff;
+}
+.sidebar .sidebar-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding: 24px 24px 12px 24px;
+    color: #fff;
+    letter-spacing: 1px;
+}
+@media (max-width: 991px) {
+    .sidebar { min-height: auto; }
+}
+</style>
