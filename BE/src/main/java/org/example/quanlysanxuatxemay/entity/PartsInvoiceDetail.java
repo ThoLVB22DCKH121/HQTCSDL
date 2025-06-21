@@ -1,5 +1,6 @@
 package org.example.quanlysanxuatxemay.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +16,7 @@ public class PartsInvoiceDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "partsInvoiceId", nullable = false)
     private PartsInvoice partsInvoice;

@@ -26,15 +26,9 @@ public class Employee {
     @Column(name = "position", nullable = false)
     private String position;
 
-    @Column(name = "address", nullable = false)
-    private String address;
-
     @ManyToOne
     @JoinColumn(name = "departmenId", nullable = false)
     private Department department;
-
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
-    private List<Wage> wageList;
 
     @ManyToMany(mappedBy = "employees")
     private List<ProductionStage> productionStages;

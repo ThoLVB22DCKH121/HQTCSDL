@@ -1,10 +1,9 @@
 package org.example.quanlysanxuatxemay.enums;
 
 public enum InvoiceStatus {
-    PENDING("Chờ xử lý"),
-    SUCCESS("Thành công"),
-    FAILED("Thất bại"),
-    CANCELLED("Hủy");
+    pending("Chờ xử lý"),
+    completed("Thành công"),
+    cancelled("Hủy");
 
     private final String displayName;
 

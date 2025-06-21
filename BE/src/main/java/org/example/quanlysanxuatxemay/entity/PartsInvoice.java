@@ -21,7 +21,7 @@ public class PartsInvoice {
 
     @Id
     @Column(name = "partsinvoiceId", length = 20)
-    private String partsinvoiceId;
+    private String partsInvoiceId;
 
     @Column(name = "totalamount", nullable = false)
     private Long totalAmount;
@@ -33,6 +33,7 @@ public class PartsInvoice {
     @Enumerated(EnumType.STRING)
     private InvoiceStatus status;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "supplierId", nullable = false)
     private Supplier supplier;

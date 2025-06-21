@@ -2,14 +2,12 @@ package org.example.quanlysanxuatxemay.service;
 
 import org.example.quanlysanxuatxemay.entity.PartsInvoice;
 import org.example.quanlysanxuatxemay.repository.PartsInvoiceRepository;
-import org.example.quanlysanxuatxemay.model.MonthlyImportCostDTO;
 import org.example.quanlysanxuatxemay.enums.InvoiceStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class PartsInvoiceService {
@@ -28,9 +26,6 @@ public class PartsInvoiceService {
         return partsInvoiceRepository.findByDateRange(from, to, pageable);
     }
 
-    public PartsInvoice save(PartsInvoice invoice) {
-        return partsInvoiceRepository.save(invoice);
-    }
 
 
     public PartsInvoice updateStatus(String id, InvoiceStatus status) {

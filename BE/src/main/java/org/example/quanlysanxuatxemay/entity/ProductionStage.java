@@ -1,5 +1,6 @@
 package org.example.quanlysanxuatxemay.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class ProductionStage {
     @JoinColumn(name = "motorbike_id")
     private Motorbike motorbike;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
         name = "productionstage_employee",
@@ -32,7 +34,6 @@ public class ProductionStage {
     )
     private List<Employee> employees;
 
-    // Trạng thái quá trình sản xuất
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private ProductionStatus status;

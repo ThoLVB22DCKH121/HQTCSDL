@@ -1,6 +1,8 @@
 package org.example.quanlysanxuatxemay.controller;
 
+import org.example.quanlysanxuatxemay.converter.PartsInvoiceDTOConverter;
 import org.example.quanlysanxuatxemay.entity.PartsInvoice;
+import org.example.quanlysanxuatxemay.model.PartsInvoiceDTO;
 import org.example.quanlysanxuatxemay.service.PartsInvoiceService;
 import org.example.quanlysanxuatxemay.enums.InvoiceStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,27 +23,24 @@ import org.springframework.data.domain.PageRequest;
 public class PartsInvoiceController {
     @Autowired
     private PartsInvoiceService partsInvoiceService;
-
-
+    @Autowired
+    private PartsInvoiceDTOConverter partsInvoiceDTOConverter;
 
     @GetMapping
-    public ResponseEntity<Page<PartsInvoice>> searchInvoices(
+    public ResponseEntity<Page<PartsInvoiceDTO>> searchInvoices(
             @RequestParam(required = false) String fromDate,
             @RequestParam(required = false) String toDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<PartsInvoice> pageResult = partsInvoiceService.searchInvoicesByDate(fromDate, toDate, pageable);
-        pageResult.forEach(inv -> {
-            if (inv.getSupplier() != null) {
-                inv.getSupplier().setPartsInvoiceList(null);
-            }
-        });
+        Page<PartsInvoiceDTO> pageResult = partsInvoiceService
+                .searchInvoicesByDate(fromDate, toDate, pageable)
+                .map(partsInvoice -> partsInvoiceDTOConverter.toDTO(partsInvoice));
         return ResponseEntity.ok(pageResult);
     }
 
 
-    @PutMapping("/{id}/status")
+    @PutMapping("/{id}")
     public ResponseEntity<PartsInvoice> updateStatus(@PathVariable("id") String id, @RequestParam String status) {
         InvoiceStatus enumStatus;
         try {

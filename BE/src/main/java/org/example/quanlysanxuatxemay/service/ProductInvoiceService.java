@@ -1,5 +1,6 @@
 package org.example.quanlysanxuatxemay.service;
 
+import org.example.quanlysanxuatxemay.enums.InvoiceStatus;
 import org.example.quanlysanxuatxemay.repository.ProductInvoiceRepository;
 import org.example.quanlysanxuatxemay.entity.ProductInvoice;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class ProductInvoiceService {
@@ -30,11 +28,10 @@ public class ProductInvoiceService {
         return productInvoiceRepository.findByDateRange(from, to, pageable);
     }
 
-    public ProductInvoice save(ProductInvoice invoice) {
+    public ProductInvoice updateStatus(String id, InvoiceStatus status) {
+        ProductInvoice invoice = productInvoiceRepository.findById(id).orElse(null);
+        if (invoice == null) return null;
+        invoice.setStatus(status);
         return productInvoiceRepository.save(invoice);
-    }
-
-    public ProductInvoice findById(String productInvoiceId) {
-        return productInvoiceRepository.findById(productInvoiceId).orElse(null);
     }
 }

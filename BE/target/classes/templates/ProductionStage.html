@@ -1,326 +1,294 @@
 <!-- ProductionStage.html - Quản lý quy trình sản xuất -->
 <!DOCTYPE html>
-<html lang="vi">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Quản lý quy trình sản xuất</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        body { background: #f8fafc; }
+        .sidebar {
+            min-height: 100vh;
+            background: #1e293b;
+            color: #fff;
+            padding: 0;
+        }
+        .sidebar .nav-link {
+            color: #cbd5e1;
+            font-weight: 500;
+            padding: 16px 24px;
+            border-radius: 0;
+            transition: background 0.2s;
+        }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+        .sidebar .sidebar-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 24px 24px 12px 24px;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .main-content {
+            padding: 32px 24px;
+        }
+        @media (max-width: 991px) {
+            .sidebar { min-height: auto; }
+        }
         .modal-lg { max-width: 900px; }
-        pre.json-view { background: #f8f9fa; padding: 10px; border-radius: 5px; }
+        .error { color: red; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-<div class="container py-4">
-    <h2 class="mb-4">Quản lý quy trình sản xuất</h2>
-    <!-- Search/filter -->
-    <form class="row g-3 mb-3" id="searchForm">
-        <div class="col-md-3">
-            <label for="fromDate" class="form-label">Từ ngày</label>
-            <input type="date" class="form-control" id="fromDate" name="fromDate">
-        </div>
-        <div class="col-md-3">
-            <label for="toDate" class="form-label">Đến ngày</label>
-            <input type="date" class="form-control" id="toDate" name="toDate">
-        </div>
-        <div class="col-md-3 align-self-end">
-            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-        </div>
-        <div class="col-md-3 align-self-end text-end">
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#stageModal" onclick="openAddModal()">Tạo quy trình SX</button>
-        </div>
-    </form>
-    <!-- Table -->
-    <div class="table-responsive">
-        <table class="table table-bordered align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>ID</th>
-                    <th>Xe máy</th>
-                    <th>Ngày bắt đầu</th>
-                    <th>Ngày kết thúc</th>
-                    <th>Trạng thái</th>
-                    <th>Nhân viên tham gia</th>
-                    <th>Hành động</th>
-                </tr>
-            </thead>
-            <tbody id="stageTableBody">
-            </tbody>
-        </table>
-    </div>
-    <!-- Pagination -->
-    <nav>
-        <ul class="pagination justify-content-center" id="pagination">
-        </ul>
-    </nav>
-</div>
-
-<!-- Add Production Stage Modal -->
-<div class="modal fade" id="stageModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <form id="stageForm">
-        <div class="modal-header">
-          <h5 class="modal-title" id="stageModalLabel">Tạo quy trình sản xuất</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="motorbikeId" class="form-label">Xe máy</label>
-            <div class="input-group">
-                <input type="text" class="form-control" id="motorbikeId" required placeholder="Nhập hoặc chọn ID xe máy">
-                <button class="btn btn-outline-secondary" type="button" onclick="openMotorbikeModal()">Chọn</button>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="employeeIds" class="form-label">Danh sách ID nhân viên (cách nhau dấu phẩy)</label>
-            <input type="text" class="form-control" id="employeeIds" required placeholder="VD: 1,2,3">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-          <button type="submit" class="btn btn-primary">Tạo mới</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Motorbike Select Modal -->
-<div class="modal fade" id="motorbikeModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Chọn xe máy</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form class="row g-2 mb-2" id="motorbikeSearchForm">
-          <div class="col-md-8">
-            <input type="text" class="form-control" id="motorbikeKeyword" placeholder="Tìm kiếm tên xe máy">
-          </div>
-          <div class="col-md-4">
-            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-          </div>
-        </form>
-        <div class="table-responsive">
-          <table class="table table-bordered align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>ID</th>
-                <th>Tên xe</th>
-                <th>Hãng</th>
-                <th>Chọn</th>
-              </tr>
-            </thead>
-            <tbody id="motorbikeTableBody"></tbody>
-          </table>
-        </div>
-        <nav>
-          <ul class="pagination justify-content-center" id="motorbikePagination"></ul>
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-lg-2 col-md-3 sidebar d-flex flex-column">
+            <div class="sidebar-title">Quản lý SX</div>
+            <a class="nav-link" th:href="@{#}">Dashboard</a>
+            <a class="nav-link" th:href="@{/customers}">Khách hàng</a>
+            <a class="nav-link" th:href="@{/employees}">Nhân viên</a>
+            <a class="nav-link" th:href="@{/suppliers}">Nhà cung cấp</a>
+            <a class="nav-link" th:href="@{/parts_invoices}">Hóa đơn linh kiện</a>
+            <a class="nav-link" th:href="@{/product_invoices}">Hóa đơn sản phẩm</a>
+            <a class="nav-link active" th:href="@{/production_stages}">Quy trình sản xuất</a>
         </nav>
-      </div>
+        <main class="col-lg-10 col-md-9 main-content">
+            <h2 class="mb-4">Quản lý quy trình sản xuất</h2>
+            <div id="error" class="error"></div>
+            <!-- Search/filter -->
+            <form class="row g-3 mb-3" id="searchForm">
+                <div class="col-md-3">
+                    <label for="fromDate" class="form-label">Từ ngày</label>
+                    <input type="date" class="form-control" id="fromDate" name="fromDate">
+                </div>
+                <div class="col-md-3">
+                    <label for="toDate" class="form-label">Đến ngày</label>
+                    <input type="date" class="form-control" id="toDate" name="toDate">
+                </div>
+                <div class="col-md-3 align-self-end">
+                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                </div>
+            </form>
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Xe máy</th>
+                        <th>Ngày bắt đầu</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody id="stageTableBody">
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" id="prevPage">
+                        <a class="page-link" href="#" onclick="previousPage(); return false;">Trước</a>
+                    </li>
+                    <li class="page-item" id="nextPage">
+                        <a class="page-link" href="#" onclick="nextPage(); return false;">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </main>
     </div>
-  </div>
 </div>
 
 <!-- Update Status Modal -->
 <div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="statusForm">
-        <div class="modal-header">
-          <h5 class="modal-title">Cập nhật trạng thái quy trình</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <form id="statusForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cập nhật trạng thái quy trình</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="statusStageId">
+                    <div class="mb-3">
+                        <label for="statusSelect" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="statusSelect" required>
+                            <option value="Delayed">Delayed</option>
+                            <option value="InProgress">InProgress</option>
+                            <option value="Completed">Completed</option>
+                            <option value="OnHold">OnHold</option>
+                            <option value="Planned">Planned</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                </div>
+            </form>
         </div>
-        <div class="modal-body">
-          <input type="hidden" id="statusStageId">
-          <div class="mb-3">
-            <label for="statusSelect" class="form-label">Trạng thái</label>
-            <select class="form-select" id="statusSelect" required>
-              <option value="NOT_STARTED">NOT_STARTED</option>
-              <option value="IN_PROGRESS">IN_PROGRESS</option>
-              <option value="COMPLETED">COMPLETED</option>
-              <option value="CANCELLED">CANCELLED</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-          <button type="submit" class="btn btn-primary">Cập nhật</button>
-        </div>
-      </form>
     </div>
-  </div>
+</div>
+
+<!-- Employee Info Modal -->
+<div class="modal fade" id="employeeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thông tin nhân viên</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên</th>
+                            <th>Số điện thoại</th>
+                            <th>Vị trí</th>
+                            <th>Phòng ban</th>
+                        </tr>
+                        </thead>
+                        <tbody id="employeeTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const apiUrl = '/api/production-stages';
-let currentPage = 0, pageSize = 5, totalPages = 1;
+    const apiUrl = '/api/production-stages';
+    let currentPage = 0, pageSize = 5, totalPages = 1;
 
-function fetchStages(page = 0) {
-    const fromDate = document.getElementById('fromDate').value;
-    const toDate = document.getElementById('toDate').value;
-    let url = `${apiUrl}?page=${page}&size=${pageSize}`;
-    if (fromDate) url += `&startDate=${fromDate}`;
-    if (toDate) url += `&endDate=${toDate}`;
-    fetch(url)
-        .then(res => res.json())
-        .then(data => {
+    async function fetchStages(page = 0) {
+        try {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            let url = `${apiUrl}?page=${page}&size=${pageSize}`;
+            if (fromDate) url += `&fromDate=${fromDate}`;
+            if (toDate) url += `&toDate=${toDate}`;
+
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+
             renderTable(data.content);
-            renderPagination(data.number, data.totalPages);
             currentPage = data.number;
             totalPages = data.totalPages;
-        });
-}
+            updatePagination();
+            document.getElementById('error').textContent = '';
+        } catch (error) {
+            document.getElementById('error').textContent = 'Lỗi khi tải dữ liệu: ' + error.message;
+            console.error('Error fetching stages:', error);
+        }
+    }
 
-function renderTable(stages) {
-    const tbody = document.getElementById('stageTableBody');
-    tbody.innerHTML = '';
-    stages.forEach(stage => {
-        const motorbikeName = stage.motorbike ? stage.motorbike.name : stage.motorbikeId;
-        const employees = (stage.employees || stage.employeeList || []).map(e => e.name || e.id).join(', ');
-        tbody.innerHTML += `
+    function renderTable(stages) {
+        const tbody = document.getElementById('stageTableBody');
+        tbody.innerHTML = '';
+        stages.forEach(stage => {
+            tbody.innerHTML += `
         <tr>
             <td>${stage.id}</td>
-            <td>${motorbikeName || ''}</td>
-            <td>${stage.startDate || ''}</td>
-            <td>${stage.endDate || ''}</td>
+            <td>${stage.motorbikeName || ''}</td>
+            <td>${stage.date || ''}</td>
             <td><span class="badge bg-${statusColor(stage.status)}">${stage.status}</span></td>
-            <td>${employees}</td>
             <td>
-                <button class="btn btn-sm btn-warning me-1" onclick='openStatusModal(${stage.id}, "${stage.status}")'>Trạng thái</button>
+                <button class="btn btn-sm btn-info me-1" onclick='showEmployees(${JSON.stringify(stage.employees)})'>Nhân viên</button>
+                <button class="btn btn-sm btn-warning" onclick='openStatusModal(${stage.id}, "${stage.status}")'>Trạng thái</button>
             </td>
         </tr>`;
-    });
-}
-
-function renderPagination(page, total) {
-    const pag = document.getElementById('pagination');
-    pag.innerHTML = '';
-    for (let i = 0; i < total; i++) {
-        pag.innerHTML += `<li class="page-item${i===page?' active':''}"><a class="page-link" href="#" onclick="fetchStages(${i});return false;">${i+1}</a></li>`;
-    }
-}
-
-function statusColor(status) {
-    switch(status) {
-        case 'COMPLETED': return 'success';
-        case 'IN_PROGRESS': return 'primary';
-        case 'CANCELLED': return 'danger';
-        case 'NOT_STARTED': return 'secondary';
-        default: return 'secondary';
-    }
-}
-
-// Modal logic
-function openAddModal() {
-    document.getElementById('stageModalLabel').innerText = 'Tạo quy trình sản xuất';
-    document.getElementById('motorbikeId').value = '';
-    document.getElementById('employeeIds').value = '';
-}
-
-// Add submit
- document.getElementById('stageForm').onsubmit = function(e) {
-    e.preventDefault();
-    const motorbikeId = document.getElementById('motorbikeId').value;
-    const employeeIds = document.getElementById('employeeIds').value.split(',').map(s => s.trim()).filter(Boolean);
-    if (!motorbikeId || employeeIds.length === 0) {
-        alert('Vui lòng nhập đủ thông tin!');
-        return;
-    }
-    fetch(`${apiUrl}?motorbikeId=${motorbikeId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(employeeIds)
-    }).then(r => {
-        if (r.ok) {
-            bootstrap.Modal.getInstance(document.getElementById('stageModal')).hide();
-            fetchStages(0);
-        } else alert('Tạo quy trình sản xuất thất bại!');
-    });
-};
-
-// Status modal
-function openStatusModal(id, status) {
-    document.getElementById('statusStageId').value = id;
-    document.getElementById('statusSelect').value = status;
-    new bootstrap.Modal(document.getElementById('statusModal')).show();
-}
-document.getElementById('statusForm').onsubmit = function(e) {
-    e.preventDefault();
-    const id = document.getElementById('statusStageId').value;
-    const status = document.getElementById('statusSelect').value;
-    fetch(`${apiUrl}/${id}/status?status=${status}`, {
-        method: 'PUT'
-    }).then(r => {
-        if (r.ok) {
-            bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
-            fetchStages(currentPage);
-        } else alert('Cập nhật trạng thái thất bại!');
-    });
-};
-
-// Motorbike modal logic
-let motorbikePage = 0, motorbikeTotal = 1, motorbikeKeyword = '';
-function openMotorbikeModal() {
-    document.getElementById('motorbikeKeyword').value = '';
-    fetchMotorbikes(0, '');
-    new bootstrap.Modal(document.getElementById('motorbikeModal')).show();
-}
-function fetchMotorbikes(page = 0, keyword = '') {
-    let url = `${apiUrl}/motorbikes?page=${page}&size=5`;
-    if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
-    fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            renderMotorbikeTable(data.content);
-            renderMotorbikePagination(data.number, data.totalPages, keyword);
-            motorbikePage = data.number;
-            motorbikeTotal = data.totalPages;
-            motorbikeKeyword = keyword;
         });
-}
-function renderMotorbikeTable(motorbikes) {
-    const tbody = document.getElementById('motorbikeTableBody');
-    tbody.innerHTML = '';
-    motorbikes.forEach(mb => {
-        tbody.innerHTML += `
-        <tr>
-            <td>${mb.id}</td>
-            <td>${mb.name || ''}</td>
-            <td>${mb.brand || ''}</td>
-            <td><button class='btn btn-sm btn-success' onclick='selectMotorbike("${mb.id}")'>Chọn</button></td>
-        </tr>`;
-    });
-}
-function renderMotorbikePagination(page, total, keyword) {
-    const pag = document.getElementById('motorbikePagination');
-    pag.innerHTML = '';
-    for (let i = 0; i < total; i++) {
-        pag.innerHTML += `<li class="page-item${i===page?' active':''}"><a class="page-link" href="#" onclick="fetchMotorbikes(${i}, '${keyword}');return false;">${i+1}</a></li>`;
     }
-}
-function selectMotorbike(id) {
-    document.getElementById('motorbikeId').value = id;
-    bootstrap.Modal.getInstance(document.getElementById('motorbikeModal')).hide();
-}
-document.getElementById('motorbikeSearchForm').onsubmit = function(e) {
-    e.preventDefault();
-    const keyword = document.getElementById('motorbikeKeyword').value;
-    fetchMotorbikes(0, keyword);
-};
 
-// Search form
- document.getElementById('searchForm').onsubmit = function(e) {
-    e.preventDefault();
-    fetchStages(0);
-};
+    function statusColor(status) {
+        switch(status) {
+            case 'Completed': return 'success';
+            case 'InProgress': return 'primary';
+            case 'OnHold': return 'danger';
+            case 'Delayed': return 'warning';
+            default: return 'secondary';
+        }
+    }
 
-// Initial load
-fetchStages();
+    function updatePagination() {
+        document.getElementById('prevPage').classList.toggle('disabled', currentPage === 0);
+        document.getElementById('nextPage').classList.toggle('disabled', currentPage >= totalPages - 1);
+    }
+
+    function previousPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            fetchStages(currentPage);
+        }
+    }
+
+    function nextPage() {
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            fetchStages(currentPage);
+        }
+    }
+
+    function showEmployees(employees) {
+        const tbody = document.getElementById('employeeTableBody');
+        tbody.innerHTML = '';
+        employees.forEach(emp => {
+            tbody.innerHTML += `
+        <tr>
+            <td>${emp.employeeId}</td>
+            <td>${emp.employeeName || ''}</td>
+            <td>${emp.phone || ''}</td>
+            <td>${emp.position || ''}</td>
+        </tr>`;
+        });
+        new bootstrap.Modal(document.getElementById('employeeModal')).show();
+    }
+
+
+    function openStatusModal(id, status) {
+        document.getElementById('statusStageId').value = id;
+        document.getElementById('statusSelect').value = status;
+        new bootstrap.Modal(document.getElementById('statusModal')).show();
+    }
+
+    document.getElementById('statusForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const id = document.getElementById('statusStageId').value;
+        const status = document.getElementById('statusSelect').value;
+        try {
+            const response = await fetch(`${apiUrl}/${id}?status=${status}`, {
+                method: 'PUT'
+            });
+            if (response.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
+                fetchStages(currentPage);
+            } else {
+                const errorData = await response.json();
+                document.getElementById('error').textContent = errorData.message || 'Cập nhật trạng thái thất bại!';
+            }
+        } catch (error) {
+            document.getElementById('error').textContent = 'Lỗi khi cập nhật trạng thái: ' + error.message;
+        }
+    };
+
+    document.getElementById('searchForm').onsubmit = function(e) {
+        e.preventDefault();
+        fetchStages(0);
+    };
+
+    // Initial load
+    fetchStages();
 </script>
 </body>
 </html>

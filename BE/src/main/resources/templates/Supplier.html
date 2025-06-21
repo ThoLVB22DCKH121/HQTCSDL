@@ -1,11 +1,41 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Quản lý nhà cung cấp</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
-        body { padding: 24px; background: #f8fafc; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: #f8fafc; }
+        .sidebar {
+            min-height: 100vh;
+            background: #1e293b;
+            color: #fff;
+            padding: 0;
+        }
+        .sidebar .nav-link {
+            color: #cbd5e1;
+            font-weight: 500;
+            padding: 16px 24px;
+            border-radius: 0;
+            transition: background 0.2s;
+        }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+        .sidebar .sidebar-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 24px 24px 12px 24px;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .main-content {
+            padding: 32px 24px;
+        }
+        @media (max-width: 991px) {
+            .sidebar { min-height: auto; }
+        }
         .container { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(30,41,59,0.07); padding: 24px; }
         h1 { color: #2563eb; margin-bottom: 24px; }
         .search-bar { margin-bottom: 18px; display: flex; gap: 8px; }
@@ -20,63 +50,88 @@
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Quản lý nhà cung cấp</h1>
-    <div class="search-bar">
-        <input id="searchInput" class="form-control" style="max-width: 220px;" placeholder="Tìm kiếm theo tên, sđt...">
-        <button class="btn btn-primary" onclick="searchSuppliers()">Tìm kiếm</button>
-        <button class="btn btn-success" onclick="showAddModal()">Thêm nhà cung cấp</button>
-    </div>
-    <table class="table table-bordered" id="supplierTable">
-        <thead><tr><th>Mã NCC</th><th>Tên nhà cung cấp</th><th>SĐT</th><th>Địa chỉ</th><th>Hành động</th></tr></thead>
-        <tbody></tbody>
-    </table>
-    <div style="display: flex; justify-content: center; margin: 12px 0;">
-        <button id="prevBtn" class="pagination-btn">Trước</button>
-        <span id="pageInfo" style="line-height: 28px; color: #2563eb; font-weight: 600; margin: 0 8px;"></span>
-        <button id="nextBtn" class="pagination-btn">Sau</button>
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-lg-2 col-md-3 sidebar d-flex flex-column">
+            <div class="sidebar-title">Quản lý SX</div>
+            <a class="nav-link" th:href="@{#}">Dashboard</a>
+            <a class="nav-link" th:href="@{/customers}">Khách hàng</a>
+            <a class="nav-link" th:href="@{/employees}">Nhân viên</a>
+            <a class="nav-link" th:href="@{/suppliers}">Nhà cung cấp</a>
+            <a class="nav-link" th:href="@{/parts_invoices}">Hóa đơn linh kiện</a>
+            <a class="nav-link" th:href="@{/product_invoices}">Hóa đơn sản phẩm</a>
+            <a class="nav-link" th:href="@{/production_stages}">Quy trình sản xuất</a>
+        </nav>
+        <main class="col-lg-10 col-md-9 main-content">
+            <h1>Quản lý nhà cung cấp</h1>
+            <div class="search-bar">
+                <input id="searchInput" class="form-control" style="max-width: 220px;" placeholder="Tìm kiếm theo tên, sđt...">
+                <button class="btn btn-primary" onclick="searchSuppliers()">Tìm kiếm</button>
+                <button class="btn btn-success" onclick="showAddModal()">Thêm nhà cung cấp</button>
+            </div>
+            <table class="table table-bordered" id="supplierTable">
+                <thead><tr><th>Mã NCC</th><th>Tên nhà cung cấp</th><th>SĐT</th><th>Địa chỉ</th><th>Hành động</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <div style="display: flex; justify-content: center; margin: 12px 0;">
+                <button id="prevBtn" class="pagination-btn">Trước</button>
+                <span id="pageInfo" style="line-height: 28px; color: #2563eb; font-weight: 600; margin: 0 8px;"></span>
+                <button id="nextBtn" class="pagination-btn">Sau</button>
+            </div>
+        </main>
     </div>
 </div>
 <!-- Modal Thêm/Sửa -->
-<div class="modal" id="supplierModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <span id="modalTitle">Thêm nhà cung cấp</span>
-            <span class="close-btn" onclick="closeModal()">&times;</span>
+<div class="modal fade" id="supplierModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="modalTitle" class="fs-5 fw-bold">Thêm nhà cung cấp</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="supplierForm" onsubmit="return saveSupplier()">
+                <input type="hidden" id="supplierId">
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Tên nhà cung cấp</label>
+                        <input id="supplierName" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Số điện thoại</label>
+                        <input id="supplierPhone" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Địa chỉ</label>
+                        <input id="supplierAddress" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </div>
+            </form>
         </div>
-        <form id="supplierForm" onsubmit="return saveSupplier()">
-            <input type="hidden" id="supplierId">
-            <div class="mb-2">
-                <label>Tên nhà cung cấp</label>
-                <input id="supplierName" class="form-control" required>
-            </div>
-            <div class="mb-2">
-                <label>Số điện thoại</label>
-                <input id="supplierPhone" class="form-control" required>
-            </div>
-            <div class="mb-2">
-                <label>Địa chỉ</label>
-                <input id="supplierAddress" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Lưu</button>
-        </form>
     </div>
 </div>
 <!-- Modal Hóa đơn nhập linh kiện -->
-<div class="modal" id="invoiceModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <span>Hóa đơn nhập linh kiện của nhà cung cấp</span>
-            <span class="close-btn" onclick="closeInvoiceModal()">&times;</span>
-        </div>
-        <table class="table table-bordered" id="invoiceTable">
-            <thead><tr><th>Mã hóa đơn</th><th>Tổng tiền</th><th>Ngày</th><th>Trạng thái</th></tr></thead>
-            <tbody></tbody>
-        </table>
-        <div style="display: flex; justify-content: center; margin: 8px 0;">
-            <button id="invPrevBtn" class="pagination-btn">Trước</button>
-            <span id="invPageInfo" style="line-height: 28px; color: #2563eb; font-weight: 600; margin: 0 8px;"></span>
-            <button id="invNextBtn" class="pagination-btn">Sau</button>
+<div class="modal fade" id="invoiceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="fs-5 fw-bold">Hóa đơn nhập linh kiện của nhà cung cấp</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered" id="invoiceTable">
+                    <thead><tr><th>Mã hóa đơn</th><th>Tổng tiền</th><th>Ngày</th><th>Trạng thái</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <div style="display: flex; justify-content: center; margin: 8px 0;">
+                    <button id="invPrevBtn" class="pagination-btn">Trước</button>
+                    <span id="invPageInfo" style="line-height: 28px; color: #2563eb; font-weight: 600; margin: 0 8px;"></span>
+                    <button id="invNextBtn" class="pagination-btn">Sau</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -198,3 +253,5 @@ document.getElementById('invPrevBtn').onclick = function() { if (invoiceModal.pa
 document.getElementById('invNextBtn').onclick = function() { if (invoiceModal.page + 1 < invoiceModal.totalPages) { invoiceModal.page++; loadInvoices(); } };
 fetchSuppliers();
 </script>
+</body>
+</html>

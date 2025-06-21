@@ -1,9 +1,12 @@
 package org.example.quanlysanxuatxemay.controller;
 
+import org.example.quanlysanxuatxemay.converter.ProductionStageDTOConverter;
 import org.example.quanlysanxuatxemay.entity.ProductionStage;
 import org.example.quanlysanxuatxemay.enums.ProductionStatus;
+import org.example.quanlysanxuatxemay.repository.ProductionStageRepository;
 import org.example.quanlysanxuatxemay.service.ProductionStageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -21,17 +24,10 @@ public class ProductionStageController {
 
     @Autowired
     private ProductionStageService productionStageService;
+    @Autowired
+    private ProductionStageDTOConverter productionStageDTOConverter;
 
-
-    @PostMapping
-    public ProductionStage createProductionStage(
-            @RequestParam String motorbikeId,
-            @RequestBody List<String> employeeIds
-    ) {
-        return productionStageService.createProductionStage(motorbikeId, employeeIds);
-    }
-
-    @PutMapping("/{stageId}/status")
+    @PutMapping("/{stageId}")
     public ProductionStage updateProductionStageStatus(
             @PathVariable Long stageId,
             @RequestParam ProductionStatus status
@@ -40,14 +36,16 @@ public class ProductionStageController {
     }
 
     @GetMapping
-    public Page<ProductionStageDTO> searchByDate(
+    public ResponseEntity<Page<ProductionStageDTO>> searchByDate(
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
-            @RequestParam int page,
-            @RequestParam int size
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return productionStageService.searchByDateRange(startDate, endDate, pageable);
+        return ResponseEntity.ok(productionStageService
+                .searchByDateRange(startDate, endDate, pageable)
+                .map(productionStage -> productionStageDTOConverter.toProductionStageDTO(productionStage)));
     }
 
     @GetMapping("/motorbikes")

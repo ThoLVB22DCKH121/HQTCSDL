@@ -1,9 +1,11 @@
 package org.example.quanlysanxuatxemay.enums;
 
 public enum ProductionStatus {
-    IN_PROGRESS("Đang xử lý"),
-    COMPLETED("Hoàn thành"),
-    CANCELLED("Đã hủy");
+    Planned("Đã lên kế hoạch"),
+    InProgress("Đang thực hiện"),
+    Completed("Đã hoàn thành"),
+    OnHold("Tạm dừng"),
+    Delayed("Bị trì hoãn");
 
     private final String displayName;
 

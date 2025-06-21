@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +41,7 @@ public class ProductionStageService {
         ProductionStage stage = new ProductionStage();
         stage.setMotorbike(motorbike);
         stage.setEmployees(employees);
-        stage.setStatus(ProductionStatus.IN_PROGRESS);
+        stage.setStatus(ProductionStatus.InProgress);
 
         return productionStageRepository.save(stage);
     }
@@ -52,9 +53,8 @@ public class ProductionStageService {
         return productionStageRepository.save(stage);
     }
 
-    public Page<ProductionStageDTO> searchByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return productionStageRepository.findByDateBetween(startDate, endDate, pageable)
-                .map(productionStageDTOConverter::toProductionStageDTO);
+    public Page<ProductionStage> searchByDateRange(LocalDate fromDate, LocalDate toDate, Pageable pageable) {
+        return productionStageRepository.findByDateRange(fromDate, toDate, pageable);
     }
 
     public Page<Motorbike> searchMotorbikes(String keyword, Pageable pageable) {

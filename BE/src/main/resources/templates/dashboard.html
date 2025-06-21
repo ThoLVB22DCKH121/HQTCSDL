@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Dashboard - Quản lý sản xuất</title>
@@ -52,20 +52,30 @@
     <div class="row">
         <nav class="col-lg-2 col-md-3 sidebar d-flex flex-column">
             <div class="sidebar-title">Quản lý SX</div>
-            <a class="nav-link active" href="dashboard.html">Dashboard</a>
-            <a class="nav-link" href="Customer.html">Khách hàng</a>
-            <a class="nav-link" href="Employee.html">Nhân viên</a>
-            <a class="nav-link" href="Supplier.html">Nhà cung cấp</a>
-            <a class="nav-link" href="PartsInvoice.html">Hóa đơn linh kiện</a>
-            <a class="nav-link" href="ProductInvoice.html">Hóa đơn sản phẩm</a>
-            <a class="nav-link" href="ProductionStage.html">Quy trình sản xuất</a>
+            <a class="nav-link" th:href="@{#}">Dashboard</a>
+            <a class="nav-link" th:href="@{/customers}">Khách hàng</a>
+            <a class="nav-link" th:href="@{/employees}">Nhân viên</a>
+            <a class="nav-link" th:href="@{/suppliers}">Nhà cung cấp</a>
+            <a class="nav-link" th:href="@{/parts_invoices}">Hóa đơn linh kiện</a>
+            <a class="nav-link" th:href="@{/product_invoices}">Hóa đơn sản phẩm</a>
+            <a class="nav-link" th:href="@{/production_stages}">Quy trình sản xuất</a>
         </nav>
         <main class="col-lg-10 col-md-9 main-content">
             <h2 class="mb-4">Dashboard tổng quan (Power BI)</h2>
-            <!-- Thay src bằng link Power BI thực tế của bạn -->
-            <iframe class="powerbi-embed" src="https://app.powerbi.com/view?r=YOUR_POWER_BI_EMBED_URL" allowfullscreen></iframe>
+            <iframe class="powerbi-embed" src="https://app.powerbi.com/reportEmbed?reportId=d196cba9-ba6d-4b6e-a7a5-3042fd233b73&autoAuth=true&ctid=e7572e92-7aee-4713-a3c4-ba64888ad45f" allowfullscreen></iframe>
         </main>
     </div>
 </div>
+<script>
+// Sidebar highlight tự động
+(function() {
+    const path = window.location.pathname.toLowerCase();
+    document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+        if (link.getAttribute('href') && path.endsWith(link.getAttribute('href').toLowerCase())) {
+            link.classList.add('active');
+        }
+    });
+})();
+</script>
 </body>
 </html>

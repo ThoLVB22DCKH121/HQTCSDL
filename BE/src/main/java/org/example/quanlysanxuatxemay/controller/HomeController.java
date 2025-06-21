@@ -6,32 +6,32 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class HomeController {
-    @GetMapping("/admin")
+    @GetMapping("")
     public ModelAndView ShowPageDashboard(){
         return new ModelAndView("dashboard");
     }
-    @GetMapping("/admin/customers")
+    @GetMapping("/customers")
     public ModelAndView ShowPageCustomers(){
-        return new ModelAndView("customer");
+        return new ModelAndView("Customer");
     }
-    @GetMapping("/admin/employees")
+    @GetMapping("/employees")
     public ModelAndView ShowPageEmployees(){
-        return new ModelAndView("employee");
+        return new ModelAndView("Employee");
     }
-    @GetMapping("/admin/suppliers")
+    @GetMapping("/suppliers")
     public ModelAndView ShowPageSuppliers(){
-        return new ModelAndView("supplier");
+        return new ModelAndView("Supplier");
     }
-    @GetMapping("/admin/partsinvoices")
+    @GetMapping("/parts_invoices")
     public ModelAndView ShowPagePartsInvoices(){
-        return new ModelAndView("parts-invoice");
+        return new ModelAndView("PartsInvoice");
     }
-    @GetMapping("/admin/productinvoices")
+    @GetMapping("/product_invoices")
     public ModelAndView ShowPageProductInvoices(){
-        return new ModelAndView("product-invoice");
+        return new ModelAndView("ProductInvoice");
     }
-    @GetMapping("/admin/productionstages")
+    @GetMapping("/production_stages")
     public ModelAndView ShowPageProductionStages(){
-        return new ModelAndView("production-stage");
+        return new ModelAndView("ProductionStage");
     }
 }
